@@ -44,15 +44,6 @@ int myGalileoDataHeaderLength = 19;
     int myCrdsLength = 10; //see assignment of myFormatString above (fortran format)
     int myCrdsDecimalPlaces = 4; // see assignment of myFormatString above (fortran format)
     
-    //    BOOL  myRemoteData = YES;
-    
-    // ******************************************************************************
-    //
-    //
-    
-    //
-    //
-    //
     // ******************************************************************************
     // rz local data
     //
@@ -60,32 +51,26 @@ int myGalileoDataHeaderLength = 19;
     //                                  stringByAppendingPathComponent:@""];
     //        NSMutableString *myEditPath = [NSMutableString stringWithFormat:@"%@/wk%iallresponsesROT.crd.txt",  myFolderPath, myDataSet];
     //    NSURL *url = [NSURL fileURLWithPath:myEditPath];
-    
-    //
     //
     // rz end local data
     // ******************************************************************************
-    //
-    
     // rz remote data
     //
-    //    http://robzimmelman.tripod.com/Galileo/
-    //
-    
     //     http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt
     
+//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/barnett.crd.txt";
+//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/001.crd.txt";
+//    NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
+        NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
+//    NSString *myURLName =  [NSString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/wk%iallresponsesROT.crd.txt", myDataSet];
+    //
+    //
+    //
     
-                NSMutableString *myEditPath = [NSMutableString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/barnett.crd.txt"];
     
-    
-    
-    //        NSMutableString *myEditPath = [NSMutableString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/wk%iallresponsesROT.crd.txt", myDataSet];
-//    NSMutableString *myEditPath = [NSMutableString stringWithFormat:@"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt"];
+    NSMutableString *myEditPath = [NSMutableString stringWithString:myURLName];
     NSURL *myURL = [NSURL URLWithString:myEditPath];
-    
-    
     NSError *myError;
-    
     NSString *stringFromFile = [NSString stringWithContentsOfURL:myURL encoding:NSUTF8StringEncoding error:NULL];
     
     //
@@ -98,8 +83,6 @@ int myGalileoDataHeaderLength = 19;
     //        NSNumber *myNextNum = 0;
     
     NSLog(@"myEditPath = %@",myEditPath);
-    
-    
     if (stringFromFile == nil) {
         // an error occurred
         NSLog(@"Error reading file at %@\n%@",
@@ -116,14 +99,29 @@ int myGalileoDataHeaderLength = 19;
         // DATA HEADER LENGTH IS 19 CHARACTERS, SEE BELOW
         //(8F10.4)   15 10 17
         
-        
+        //(8F10.4)  105 76125
         //(8F10.4) 105 76125
         //(8F10.4)   15 10 17
         //(6F12.4) 105 64105
         // rz new galileo format?
         // needed for the larger datasets.
-        myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 3)];
-        myConString = [stringFromFile substringWithRange: NSMakeRange(11, 3)];
+        
+        // rz can we check on the location of the last numbers?
+//        if ([[stringFromFile substringWithRange:NSMakeRange(20, 1)]  isEqualToString:@"1"] ) {
+//        if ([[stringFromFile substringWithRange:NSMakeRange(19, 1)] compare:@"0"] ) {
+//            NSLog(@"Greater Than 0");
+//        }
+//        else {
+//            NSLog(@"Less Than 0");
+//        }
+        
+        
+//        myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 3)];
+//        myConString = [stringFromFile substringWithRange: NSMakeRange(11, 3)];
+
+            myDimString = [stringFromFile substringWithRange: NSMakeRange(16, 3)];
+        myConString = [stringFromFile substringWithRange: NSMakeRange(10, 3)];
+
         //
         // rz works for first datasets supplied and the dataset from Carolyn
         //        myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 2)];
