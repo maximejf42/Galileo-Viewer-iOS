@@ -35,6 +35,11 @@ int myGalileoDataHeaderLength = 19;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    
+    
+    
+    
     NSString *myFormatString = @"(8F10.4)";
     NSString *myDimString = @"";
     NSString *myConString = @"";
@@ -58,10 +63,9 @@ int myGalileoDataHeaderLength = 19;
     //
     //     http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt
     
-//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/barnett.crd.txt";
+//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/barnett2.crd.txt";
 //    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/001.crd.txt";
-//    NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
-        NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
+    NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
 //    NSString *myURLName =  [NSString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/wk%iallresponsesROT.crd.txt", myDataSet];
     //
     //
@@ -73,6 +77,8 @@ int myGalileoDataHeaderLength = 19;
     NSError *myError;
     NSString *stringFromFile = [NSString stringWithContentsOfURL:myURL encoding:NSUTF8StringEncoding error:NULL];
     
+    
+    
     //
     //  rz end remote data
     // ******************************************************************************
@@ -82,7 +88,7 @@ int myGalileoDataHeaderLength = 19;
     
     //        NSNumber *myNextNum = 0;
     
-    NSLog(@"myEditPath = %@",myEditPath);
+    //nslog(@"myEditPath = %@",myEditPath);
     if (stringFromFile == nil) {
         // an error occurred
         NSLog(@"Error reading file at %@\n%@",
@@ -94,7 +100,7 @@ int myGalileoDataHeaderLength = 19;
         myCrdsLength = [myFormatString substringWithRange:NSMakeRange(3,2 )].intValue;
         myCrdsDecimalPlaces = [myFormatString substringWithRange:NSMakeRange(6, 1)].intValue;
         
-        NSLog(@"MyCrds Length = %d, MyCrdsPerLine = %d, myCrdsDecimalPlaces = %d", myCrdsLength,myCrdsPerLine, myCrdsDecimalPlaces);
+        //nslog(@"MyCrds Length = %d, MyCrdsPerLine = %d, myCrdsDecimalPlaces = %d", myCrdsLength,myCrdsPerLine, myCrdsDecimalPlaces);
         
         // DATA HEADER LENGTH IS 19 CHARACTERS, SEE BELOW
         //(8F10.4)   15 10 17
@@ -115,17 +121,9 @@ int myGalileoDataHeaderLength = 19;
 //            NSLog(@"Less Than 0");
 //        }
         
-        
-//        myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 3)];
-//        myConString = [stringFromFile substringWithRange: NSMakeRange(11, 3)];
-
-            myDimString = [stringFromFile substringWithRange: NSMakeRange(16, 3)];
+        myDimString = [stringFromFile substringWithRange: NSMakeRange(16, 3)];
         myConString = [stringFromFile substringWithRange: NSMakeRange(10, 3)];
 
-        //
-        // rz works for first datasets supplied and the dataset from Carolyn
-        //        myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 2)];
-        //        myConString = [stringFromFile substringWithRange: NSMakeRange(11, 2)];
         myDimensions = [myDimString intValue];
         myConceptCount = [myConString intValue];
         NSArray *myFileLines = [stringFromFile componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -140,7 +138,7 @@ int myGalileoDataHeaderLength = 19;
             }
         }
         NSUInteger myWorkLineCount = [myWorkLines count] ;
-        NSLog(@"myWorkLineCount = %lu",(unsigned long)myWorkLineCount);
+        //nslog(@"myWorkLineCount = %lu",(unsigned long)myWorkLineCount);
         
         //            for (int i = 0 ; i < myWorkLineCount; i++) {
         //                NSLog(@"Line %i: %@", i , myWorkLines[i]);
@@ -153,26 +151,44 @@ int myGalileoDataHeaderLength = 19;
         //                NSLog(@"Concept %i = %@", i + 1 , myCrdLabels[i] );
         //            }
         
-        NSLog(@"Dims: %i",myDimensions);
-        NSLog(@"Cons: %i",myConceptCount);
+        //nslog(@"Dims Before Correction: %i",myDimensions);
+        //nslog(@"Cons Before Correction: %i",myConceptCount);
         long myTitleLength = 0;
         myTitleLength = [[myFileLines objectAtIndex:0] length ] - myGalileoDataHeaderLength;
-        NSLog(@"Title length = %ld",myTitleLength);
+        //nslog(@"Title length = %ld",myTitleLength);
+
+        // rz this is to read some datasets, like the barnett2 dataset
+        //
+        if (myWorkLineCount / myConceptCount > 50 ){
+            myDimString = [stringFromFile substringWithRange: NSMakeRange(17, 3)];
+            myConString = [stringFromFile substringWithRange: NSMakeRange(11, 3)];
+            myDimensions = [myDimString intValue];
+            myConceptCount = [myConString intValue];
+        }
+        //nslog(@"Dims After Correction: %i",myDimensions);
+        //nslog(@"Cons After Correction: %i",myConceptCount);
         NSMutableString *myEditedTitleString = [NSMutableString stringWithString:@""];
+        
+        
+        
+        
+        
+        
+        
         
         
         if (myTitleLength > 0) {
             NSString *myTitleString = [[myFileLines objectAtIndex:0] substringFromIndex:myGalileoDataHeaderLength];
             myEditedTitleString = [NSMutableString stringWithString:myTitleString];
-            NSLog(@"BEFORE REPLACE, Title Is: %@",myEditedTitleString);
+            //nslog(@"BEFORE REPLACE, Title Is: %@",myEditedTitleString);
             [myEditedTitleString replaceOccurrencesOfString:@"    " withString:@"" options:NSLiteralSearch range:NSMakeRange(1, myTitleString.length - 1)];
         }
         else{
             myEditedTitleString = [NSMutableString stringWithString:@""];
         }
-        NSLog(@"NOW AFTER REPLACE, Title Is: %@",myEditedTitleString);
+        //nslog(@"NOW AFTER REPLACE, Title Is: %@",myEditedTitleString);
         
-        NSLog(@"myWorkLineLine Count= %lu",(unsigned long)myWorkLineCount);
+        //nslog(@"myWorkLineLine Count= %lu",(unsigned long)myWorkLineCount);
         
         NSArray *myCrdLines = [ myWorkLines objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange: NSMakeRange( 1, myWorkLineCount  - myConceptCount - 1)]   ];
         double myTempX = 0;
@@ -186,17 +202,17 @@ int myGalileoDataHeaderLength = 19;
         //
         double myTempLineSkip = (double)  myDimensions /  (double) myCrdsPerLine;
         myLineSkip =  ceil(myTempLineSkip);
-        NSLog(@"myTempLineSkip = %f",myTempLineSkip);
+        //nslog(@"myTempLineSkip = %f",myTempLineSkip);
         
-        NSLog(@"myLineSkip = %d",myLineSkip);
+        //nslog(@"myLineSkip = %d",myLineSkip);
         
         myCrdLineCount = myConceptCount * myLineSkip;
-        NSLog(@"myCrdLineCount = %d",myCrdLineCount);
+        //nslog(@"myCrdLineCount = %d",myCrdLineCount);
         
         for (int i = 0; i < myConceptCount; i++) {
-            NSLog(@"In Loop.  i = %d",i);
+            //nslog(@"In Loop.  i = %d",i);
             j = i * myLineSkip;
-            NSLog(@"myCrdLines[j]= %@", myCrdLines[j] );
+            //nslog(@"myCrdLines[j]= %@", myCrdLines[j] );
             NSArray *myTempArray = [NSArray arrayWithObjects:myCrdLines[j], nil];
             NSString *myTempString = [[ myTempArray valueForKey:@"description"] componentsJoinedByString:@""];
             myTempX = [[myTempString substringWithRange:NSMakeRange(0, myCrdsLength)] floatValue] ;
@@ -207,7 +223,7 @@ int myGalileoDataHeaderLength = 19;
             
             
             
-            NSLog(@"X= %f, Y= %f, Z= %f" , myTempX , myTempY , myTempZ);
+            //nslog(@"X= %f, Y= %f, Z= %f" , myTempX , myTempY , myTempZ);
             myCrdsArray[i][0] =  myTempX;
             myCrdsArray[i][1] =  myTempY;
             myCrdsArray[i][2] =  myTempZ;
@@ -261,7 +277,7 @@ int myGalileoDataHeaderLength = 19;
         //
         //
         
-        NSLog(@"About to Create Scene");
+        //nslog(@"About to Create Scene");
         
         // create a new scene
         SCNScene *scene = [SCNScene sceneNamed:@"art.scnassets/GalileoScene.dae"];
@@ -342,7 +358,7 @@ int myGalileoDataHeaderLength = 19;
         //        NSArray *myCrdLabels = [ myWorkLines objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange: NSMakeRange( myWorkLineCount - myConceptCount , myConceptCount)] ];
         NSArray *myCrdLabels = [ myWorkLines objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange: NSMakeRange( myCrdLineCount + 1, myConceptCount)] ];
         
-        NSLog(@"myCrdLabels = %@",myCrdLabels);
+        //nslog(@"myCrdLabels = %@",myCrdLabels);
         
         
         
@@ -355,14 +371,14 @@ int myGalileoDataHeaderLength = 19;
         scnView.allowsCameraControl = YES;
         
         // show statistics such as fps and timing information
-        scnView.showsStatistics = YES;
+        scnView.showsStatistics = NO;
         
         // configure the view
         scnView.backgroundColor = [UIColor blackColor];
         
         // rz default lighting
         scnView.autoenablesDefaultLighting = YES;
-        NSLog(@"MyTitleLength = %ld",myTitleLength);
+        //nslog(@"MyTitleLength = %ld",myTitleLength);
         if (myTitleLength > 0) {
             
             // rz display the title somewhere
@@ -389,7 +405,7 @@ int myGalileoDataHeaderLength = 19;
         
         // rz make the spheres and cylinders and text for the concepts
         for (int i = 0; i < myConceptCount; i++) {
-            NSLog(@"CRDs for %@ = %f  %f   %f ",myCrdLabels[i] ,myNormalizedCrdsArray[i][0], myNormalizedCrdsArray[i][1], myNormalizedCrdsArray[i][2]   );
+            //nslog(@"CRDs for %@ = %f  %f   %f ",myCrdLabels[i] ,myNormalizedCrdsArray[i][0], myNormalizedCrdsArray[i][1], myNormalizedCrdsArray[i][2]   );
             SCNNode *mySphereNode = [SCNNode node];
             SCNSphere *mySphere = [SCNSphere sphereWithRadius:mySphereRadius];
             if (myConceptCount > 50) {
@@ -541,7 +557,7 @@ int myGalileoDataHeaderLength = 19;
     return YES;
 }
 
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+- (NSUInteger)supportedInterfaceOrientations
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
         return UIInterfaceOrientationMaskAllButUpsideDown;
