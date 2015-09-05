@@ -10,5 +10,5 @@
 #import <SceneKit/SceneKit.h>
 
 @interface GameViewController : UIViewController<UIPickerViewDelegate>
-
+@property UIActivityIndicatorView* myLoadActivity;
 @end

@@ -13,6 +13,8 @@ float myMaxX = 0.0;
 float myMaxY = 0.0;
 float myMaxZ = 0.0;
 
+float myProgress = 0.0;
+
 float myMaxVal = 0.0;
 int myDataSet = 6;
 
@@ -26,19 +28,33 @@ int myGalileoDataHeaderLength = 19;
 
 
 @implementation GameViewController
-{
+@synthesize myLoadActivity;
+
+- (void)viewWillLayoutSubviews {
+    myLoadActivity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    [self.view addSubview:myLoadActivity ];
+    [myLoadActivity setFrame:CGRectMake((self.view.frame.size.width / 2 ) - 50 , (self.view.frame.size.height / 2) - 50 , 100, 100)];
+    [myLoadActivity startAnimating];
 }
 
 
+- (void)viewDidLayoutSubviews {
+    //    [myLoadActivity stopAnimating];
+}
 
+
+- (void)viewDidAppear:(BOOL)animated {
+    [self.myLoadActivity stopAnimating];
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    
-    
-    
+    //    UIProgressView *myProgressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+    //    [self.view addSubview:myProgressView];
+    //    [myProgressView setHidden:NO];
+    //    [myProgressView setFrame:CGRectMake(0, 100, self.view.frame.size.width, 100)];
+    //    [myProgressView setProgress:0.0];
     
     NSString *myFormatString = @"(8F10.4)";
     NSString *myDimString = @"";
@@ -63,27 +79,27 @@ int myGalileoDataHeaderLength = 19;
     //
     //     http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt
     
-//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/barnett2.crd.txt";
-//    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/001.crd.txt";
-    NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
-//    NSString *myURLName =  [NSString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/wk%iallresponsesROT.crd.txt", myDataSet];
-    //
-    //
-    //
+    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/001.crd.txt";
+    //    NSString *myURLName = @"http://robzimmelman.tripod.com/Galileo/barnett2.crd.txt";
     
     
+    
+    //    NSString *myURLName = @"http://www.acsu.buffalo.edu/~woelfel/DATA/data.crd.txt";
+    //    NSString *myURLName =  [NSString stringWithFormat:@"http://robzimmelman.tripod.com/Galileo/wk%iallresponsesROT.crd.txt", myDataSet];
+    //
+    //
+    //
     NSMutableString *myEditPath = [NSMutableString stringWithString:myURLName];
     NSURL *myURL = [NSURL URLWithString:myEditPath];
     NSError *myError;
     NSString *stringFromFile = [NSString stringWithContentsOfURL:myURL encoding:NSUTF8StringEncoding error:NULL];
-    
-    
-    
     //
     //  rz end remote data
     // ******************************************************************************
     //
     //
+    //    [myProgressView setProgress:0.0];
+    
     
     
     //        NSNumber *myNextNum = 0;
@@ -113,17 +129,17 @@ int myGalileoDataHeaderLength = 19;
         // needed for the larger datasets.
         
         // rz can we check on the location of the last numbers?
-//        if ([[stringFromFile substringWithRange:NSMakeRange(20, 1)]  isEqualToString:@"1"] ) {
-//        if ([[stringFromFile substringWithRange:NSMakeRange(19, 1)] compare:@"0"] ) {
-//            NSLog(@"Greater Than 0");
-//        }
-//        else {
-//            NSLog(@"Less Than 0");
-//        }
+        //        if ([[stringFromFile substringWithRange:NSMakeRange(20, 1)]  isEqualToString:@"1"] ) {
+        //        if ([[stringFromFile substringWithRange:NSMakeRange(19, 1)] compare:@"0"] ) {
+        //            NSLog(@"Greater Than 0");
+        //        }
+        //        else {
+        //            NSLog(@"Less Than 0");
+        //        }
         
         myDimString = [stringFromFile substringWithRange: NSMakeRange(16, 3)];
         myConString = [stringFromFile substringWithRange: NSMakeRange(10, 3)];
-
+        
         myDimensions = [myDimString intValue];
         myConceptCount = [myConString intValue];
         NSArray *myFileLines = [stringFromFile componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -156,7 +172,7 @@ int myGalileoDataHeaderLength = 19;
         long myTitleLength = 0;
         myTitleLength = [[myFileLines objectAtIndex:0] length ] - myGalileoDataHeaderLength;
         //nslog(@"Title length = %ld",myTitleLength);
-
+        
         // rz this is to read some datasets, like the barnett2 dataset
         //
         if (myWorkLineCount / myConceptCount > 50 ){
@@ -209,6 +225,8 @@ int myGalileoDataHeaderLength = 19;
         myCrdLineCount = myConceptCount * myLineSkip;
         //nslog(@"myCrdLineCount = %d",myCrdLineCount);
         
+        //        [myProgressView setProgress:0.0];
+        
         for (int i = 0; i < myConceptCount; i++) {
             //nslog(@"In Loop.  i = %d",i);
             j = i * myLineSkip;
@@ -258,6 +276,8 @@ int myGalileoDataHeaderLength = 19;
             }
             
         }
+        //        [myProgressView setProgress:0.0];
+        
         
         
         // rz now normalize the values to a max of 100
@@ -278,6 +298,10 @@ int myGalileoDataHeaderLength = 19;
         //
         
         //nslog(@"About to Create Scene");
+        //        [myLoadActivity stopAnimating];
+        
+        
+        
         
         // create a new scene
         SCNScene *scene = [SCNScene sceneNamed:@"art.scnassets/GalileoScene.dae"];
@@ -402,9 +426,13 @@ int myGalileoDataHeaderLength = 19;
             
         }
         
-        
+        float _progress = 0;
         // rz make the spheres and cylinders and text for the concepts
         for (int i = 0; i < myConceptCount; i++) {
+            _progress = ( (float)  i / (float) myConceptCount);
+            //            NSLog(@"C = %i I = %i Progress = %f", myConceptCount, i, _progress);
+            //            [myProgressView setProgress:_progress animated:YES];
+            //            [myProgressView setNeedsDisplay];
             //nslog(@"CRDs for %@ = %f  %f   %f ",myCrdLabels[i] ,myNormalizedCrdsArray[i][0], myNormalizedCrdsArray[i][1], myNormalizedCrdsArray[i][2]   );
             SCNNode *mySphereNode = [SCNNode node];
             SCNSphere *mySphere = [SCNSphere sphereWithRadius:mySphereRadius];
@@ -450,12 +478,12 @@ int myGalileoDataHeaderLength = 19;
             SCNNode *myCylinderNode = [SCNNode node];
             SCNCylinder *myCylinder = [SCNCylinder cylinderWithRadius:0.25 height:  fabs(myNormalizedCrdsArray[i][1]) ];
             
-//            if (myConceptCount > 50) {
-//                [myCylinderNode setScale:SCNVector3Make(0.05, 0.05, 0.05)];
-//            }
-//            else{
-//                [myCylinderNode setScale:SCNVector3Make(0.25, 0.25, 0.25)];
-//            }
+            //            if (myConceptCount > 50) {
+            //                [myCylinderNode setScale:SCNVector3Make(0.05, 0.05, 0.05)];
+            //            }
+            //            else{
+            //                [myCylinderNode setScale:SCNVector3Make(0.25, 0.25, 0.25)];
+            //            }
             [myCylinderNode setGeometry:myCylinder];
             myCylinder.firstMaterial.specular.contents = [UIColor darkGrayColor];
             myCylinder.firstMaterial.ambient.contents = [UIColor darkGrayColor];
@@ -484,19 +512,13 @@ int myGalileoDataHeaderLength = 19;
         
         myFloor.firstMaterial.locksAmbientWithDiffuse = YES;
         
-        
-        
-        
-        
         // add a tap gesture recognizer
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
         NSMutableArray *gestureRecognizers = [NSMutableArray array];
         [gestureRecognizers addObject:tapGesture];
         [gestureRecognizers addObjectsFromArray:scnView.gestureRecognizers];
         scnView.gestureRecognizers = gestureRecognizers;
-        
     }
-    
 }
 
 
@@ -573,9 +595,11 @@ int myGalileoDataHeaderLength = 19;
 }
 
 
+
 -(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
     
 }
+
 
 
 
