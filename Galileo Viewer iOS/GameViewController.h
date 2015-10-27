@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <SceneKit/SceneKit.h>
 
-@interface GameViewController : UIViewController<UIPickerViewDelegate>
-@property UIActivityIndicatorView* myLoadActivity;
+@interface GameViewController : UIViewController<UIAlertViewDelegate>
+@property NSString *myDefaultURL;
 @end
